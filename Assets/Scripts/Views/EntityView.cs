@@ -19,39 +19,44 @@ namespace PolarBond.Views
             LogicEntity = entity;
             if (entity != null)
             {
-                entity.VisualTransform = this.transform;
-                Debug.Log($"[EntityView] Initialized {gameObject.name} and set VisualTransform.");
+                entity.OnPositionChanged += WakeUpAndMove;
+                Debug.Log($"[EntityView] Initialized {gameObject.name} and subscribed to events.");
             }
             // Snap to grid initially with offset
             transform.position = new Vector3(entity.Position.x, entity.Position.y, 0) + visualOffset;
             targetPosition = transform.position;
         }
 
-        protected virtual void Update()
+        protected virtual void OnDestroy()
         {
             if (LogicEntity != null)
             {
-                // Logic entity's position is the source of truth
-                targetPosition = new Vector3(LogicEntity.Position.x, LogicEntity.Position.y, 0) + visualOffset;
-                
-                // Smoothly lerp towards the target position
-                if (Vector3.Distance(transform.position, targetPosition) > 0.001f)
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-                }
-                else
-                {
-                    if (transform.position != targetPosition)
-                    {
-                        transform.position = targetPosition;
-                    }
-                    this.enabled = false; // Ngủ đông khi đã đến đích
-                }
+                LogicEntity.OnPositionChanged -= WakeUpAndMove;
             }
         }
 
-        public void WakeUp()
+        protected virtual void Update()
         {
+            if (LogicEntity == null) return;
+
+            // Smoothly lerp towards the target position
+            if (Vector3.Distance(transform.position, targetPosition) > 0.001f)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            }
+            else
+            {
+                if (transform.position != targetPosition)
+                {
+                    transform.position = targetPosition;
+                }
+                this.enabled = false; // Ngủ đông khi đã đến đích
+            }
+        }
+
+        private void WakeUpAndMove(Vector2Int newPos)
+        {
+            targetPosition = new Vector3(newPos.x, newPos.y, 0) + visualOffset;
             this.enabled = true;
         }
         

@@ -27,6 +27,11 @@ namespace PolarBond.Views
             SetVisualsActive(true);
             optionsPopup.SetActive(false);
             
+            CanvasGroup cg = mainMenuCanvas.GetComponent<CanvasGroup>();
+            if (cg == null) cg = mainMenuCanvas.AddComponent<CanvasGroup>();
+            cg.alpha = 0f;
+            UITweener.FadeTo(cg, 1f, 0.3f);
+            
             // Hide other canvases if they exist
             if (LevelSelectManager.Instance != null)
                 LevelSelectManager.Instance.levelSelectCanvas.SetActive(false);
@@ -35,6 +40,11 @@ namespace PolarBond.Views
             foreach (var ui in uis)
             {
                 ui.gameObject.SetActive(false);
+            }
+            
+            if (PolarBond.Managers.LevelManager.Instance != null)
+            {
+                PolarBond.Managers.LevelManager.Instance.ClearLevel();
             }
         }
 
@@ -66,6 +76,8 @@ namespace PolarBond.Views
         public void OnClickOptions()
         {
             optionsPopup.SetActive(true);
+            optionsPopup.transform.localScale = Vector3.zero;
+            UITweener.ScaleTo(optionsPopup.transform, Vector3.one, 0.3f);
         }
 
         public void OnClickExit()

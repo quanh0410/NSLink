@@ -1,49 +1,66 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace PolarBond.Views
 {
-    public class UIButtonEffect : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class UIButtonEffect : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {
         [SerializeField] private float pressScale = 0.9f;
-        [SerializeField] private float transitionSpeed = 10f;
+        [SerializeField] private float transitionDuration = 0.15f;
         
         private Vector3 originalScale;
-        private Vector3 targetScale;
+        private Color originalColor = Color.white;
+        
+        private Coroutine scaleCoroutine;
+        private Image targetImage;
+        private Color tintColor = new Color(0.85f, 0.85f, 0.85f, 1f);
 
         private void Awake()
         {
             originalScale = transform.localScale;
-            targetScale = originalScale;
-            this.enabled = false; // Ngủ đông khi không có thay đổi
+            targetImage = GetComponent<Image>();
+            if (targetImage != null)
+            {
+                originalColor = targetImage.color;
+            }
         }
-
-        private void Update()
+        
+        private void OnDisable()
         {
-            if (Vector3.Distance(transform.localScale, targetScale) > 0.001f)
+            if (scaleCoroutine != null)
             {
-                transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * transitionSpeed);
+                UITweener.StopTween(scaleCoroutine);
+                scaleCoroutine = null;
             }
-            else
-            {
-                if (transform.localScale != targetScale)
-                {
-                    transform.localScale = targetScale;
-                }
-                this.enabled = false; // Đã đạt mục tiêu, tắt Update
-            }
+            transform.localScale = originalScale;
+            if (targetImage != null) targetImage.color = originalColor;
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            targetScale = originalScale * pressScale;
-            this.enabled = true; // Bật Update để chạy hiệu ứng
+            if (scaleCoroutine != null) UITweener.StopTween(scaleCoroutine);
+            scaleCoroutine = UITweener.ScaleTo(transform, originalScale * pressScale, transitionDuration);
+            
+            if (targetImage != null) targetImage.color = originalColor * tintColor;
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            targetScale = originalScale;
-            this.enabled = true; // Bật Update để chạy hiệu ứng
+            ResetState();
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            ResetState();
+        }
+
+        private void ResetState()
+        {
+            if (scaleCoroutine != null) UITweener.StopTween(scaleCoroutine);
+            scaleCoroutine = UITweener.ScaleTo(transform, originalScale, transitionDuration);
+            
+            if (targetImage != null) targetImage.color = originalColor;
         }
     }
 }

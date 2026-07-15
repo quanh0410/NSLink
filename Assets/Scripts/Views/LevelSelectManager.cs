@@ -51,25 +51,53 @@ namespace PolarBond.Views
             if (mobileGameCanvas != null) mobileGameCanvas.SetActive(false);
             
             PopulateLevels();
+            
+            CanvasGroup cg = levelSelectCanvas.GetComponent<CanvasGroup>();
+            if (cg == null) cg = levelSelectCanvas.AddComponent<CanvasGroup>();
+            cg.alpha = 0f;
+            UITweener.FadeTo(cg, 1f, 0.3f);
         }
 
         public void CloseToMainMenu()
         {
-            levelSelectCanvas.SetActive(false);
-            if (MainMenuManager.Instance != null)
+            CanvasGroup cg = levelSelectCanvas.GetComponent<CanvasGroup>();
+            if (cg != null)
             {
-                MainMenuManager.Instance.ShowMainMenu();
+                UITweener.FadeTo(cg, 0f, 0.2f, () => 
+                {
+                    levelSelectCanvas.SetActive(false);
+                    if (MainMenuManager.Instance != null)
+                        MainMenuManager.Instance.ShowMainMenu();
+                    else if (mobileGameCanvas != null)
+                        mobileGameCanvas.SetActive(true);
+                });
             }
-            else if (mobileGameCanvas != null)
+            else
             {
-                mobileGameCanvas.SetActive(true);
+                levelSelectCanvas.SetActive(false);
+                if (MainMenuManager.Instance != null)
+                    MainMenuManager.Instance.ShowMainMenu();
+                else if (mobileGameCanvas != null)
+                    mobileGameCanvas.SetActive(true);
             }
         }
 
         public void HideLevelSelect()
         {
-            levelSelectCanvas.SetActive(false);
-            if (mobileGameCanvas != null) mobileGameCanvas.SetActive(true);
+            CanvasGroup cg = levelSelectCanvas.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                UITweener.FadeTo(cg, 0f, 0.2f, () => 
+                {
+                    levelSelectCanvas.SetActive(false);
+                    if (mobileGameCanvas != null) mobileGameCanvas.SetActive(true);
+                });
+            }
+            else
+            {
+                levelSelectCanvas.SetActive(false);
+                if (mobileGameCanvas != null) mobileGameCanvas.SetActive(true);
+            }
         }
 
         public void SelectLevel(int index)

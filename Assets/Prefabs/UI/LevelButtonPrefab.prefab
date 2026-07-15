@@ -149,7 +149,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -7236348426585993012, guid: 7c8b508ecb84615428dec83058c46d70, type: 3}
+  m_Sprite: {fileID: -6580035922054412579, guid: 987550d048b147e4fbb391a187cd1c4b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -245,7 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PolarBond.Views.UIButtonEffect
   pressScale: 0.9
-  transitionSpeed: 10
+  transitionDuration: 0.15
 --- !u!1 &8779051631045875957
 GameObject:
   m_ObjectHideFlags: 0

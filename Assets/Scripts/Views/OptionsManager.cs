@@ -29,7 +29,7 @@ namespace PolarBond.Views
 
         public void OnClickClose()
         {
-            gameObject.SetActive(false);
+            UITweener.ScaleTo(transform, Vector3.zero, 0.2f, () => gameObject.SetActive(false));
         }
     }
 }

@@ -14,6 +14,8 @@ namespace PolarBond.Logic
         private GridManager gridManager;
         private MagneticPhysicsEngine physicsEngine;
         private UndoManager undoManager;
+        private WinConditionSystem winConditionSystem;
+        private TileEffectSystem tileEffectSystem;
 
         private PlayerEntity player;
         private List<MergedBlock> allBlocks;
@@ -25,6 +27,8 @@ namespace PolarBond.Logic
             gridManager = new GridManager();
             physicsEngine = new MagneticPhysicsEngine(gridManager);
             undoManager = new UndoManager(gridManager);
+            winConditionSystem = new WinConditionSystem(gridManager);
+            tileEffectSystem = new TileEffectSystem(gridManager);
             undoManager.OnUndoStateChanged += () => OnUndoStateChanged?.Invoke();
             allBlocks = new List<MergedBlock>();
         }
@@ -111,29 +115,14 @@ namespace PolarBond.Logic
                 }
 
                 // Pha 4: Kiểm tra Reverse Polarity (Đảo Cực)
-                foreach (var block in allBlocks)
+                if (tileEffectSystem.ProcessEffects(allBlocks))
                 {
-                    foreach (var magnet in block.Magnets)
-                    {
-                        if (gridManager.GetSpecialTile(magnet.Position) == SpecialTileType.PolarityReverse)
-                        {
-                            if (!magnet.WasOnReverseTile)
-                            {
-                                magnet.ReversePolarity();
-                                magnet.WasOnReverseTile = true;
-                                stateChanged = true; // Trạng thái thay đổi, tiếp tục tính toán Hút/Đẩy
-                            }
-                        }
-                        else
-                        {
-                            magnet.WasOnReverseTile = false;
-                        }
-                    }
+                    stateChanged = true; // Trạng thái thay đổi, tiếp tục tính toán Hút/Đẩy
                 }
             }
 
             // Step 5: Check Win Condition
-            if (!isLevelComplete && CheckWinCondition())
+            if (!isLevelComplete && winConditionSystem.Check())
             {
                 isLevelComplete = true;
                 Debug.Log("Level Complete! Loading next level...");
@@ -179,63 +168,6 @@ namespace PolarBond.Logic
             Debug.Log($"[GameLoopController] Undo result: {success}");
         }
 
-        private bool CheckWinCondition()
-        {
-            var targets = gridManager.GetTargetTiles();
-            
-            // LOGGING FOR DEBUGGING
-#if UNITY_EDITOR
-            Debug.Log($"[CheckWinCondition] Đang kiểm tra... Tổng số ô đích trên bản đồ: {targets.Count}");
-#endif
-            if (targets.Count == 0) return false;
 
-            int satisfiedCount = 0;
-            foreach (var kvp in targets)
-            {
-                Vector2Int pos = kvp.Key;
-                TargetType targetType = kvp.Value;
-
-                GridEntity entity = gridManager.GetEntityAt(pos);
-                if (entity == null)
-                {
-#if UNITY_EDITOR
-                    Debug.Log($"[CheckWinCondition] Ô đích tại {pos} ĐANG TRỐNG (Không có gì ở đây).");
-#endif
-                    return false;
-                }
-                
-                if (entity.Type != EntityType.Magnet)
-                {
-#if UNITY_EDITOR
-                    Debug.Log($"[CheckWinCondition] Ô đích tại {pos} bị chiếm bởi {entity.Type} (Không phải Nam Châm).");
-#endif
-                    return false;
-                }
-
-                MagnetEntity magnet = (MagnetEntity)entity;
-                if (targetType == TargetType.NorthTarget && magnet.Polarity != MagneticPolarity.North)
-                {
-#if UNITY_EDITOR
-                    Debug.Log($"[CheckWinCondition] Ô đích tại {pos} yêu cầu cực North (Đỏ), nhưng nam châm là {magnet.Polarity}.");
-#endif
-                    return false;
-                }
-                
-                if (targetType == TargetType.SouthTarget && magnet.Polarity != MagneticPolarity.South)
-                {
-#if UNITY_EDITOR
-                    Debug.Log($"[CheckWinCondition] Ô đích tại {pos} yêu cầu cực South (Xanh), nhưng nam châm là {magnet.Polarity}.");
-#endif
-                    return false;
-                }
-                
-                satisfiedCount++;
-            }
-
-#if UNITY_EDITOR
-            Debug.Log($"[CheckWinCondition] THÀNH CÔNG! Đã lấp đầy {satisfiedCount}/{targets.Count} ô đích.");
-#endif
-            return true;
-        }
     }
 }

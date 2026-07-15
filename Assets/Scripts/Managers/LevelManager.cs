@@ -109,5 +109,14 @@ namespace PolarBond.Managers
 
             NextLevel();
         }
+
+        public void ClearLevel()
+        {
+            if (currentLevelInstance != null)
+            {
+                Destroy(currentLevelInstance);
+                currentLevelInstance = null;
+            }
+        }
     }
 }

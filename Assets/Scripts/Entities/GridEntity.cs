@@ -5,25 +5,18 @@ namespace PolarBond.Entities
 {
     public abstract class GridEntity
     {
+        public System.Action<Vector2Int> OnPositionChanged;
+
         private Vector2Int _position;
         public Vector2Int Position 
         { 
             get => _position; 
             set 
             {
-                _position = value;
-                if (VisualTransform != null)
+                if (_position != value)
                 {
-                    var view = VisualTransform.GetComponent<PolarBond.Views.EntityView>();
-                    if (view != null) 
-                    {
-                        view.WakeUp();
-                        UnityEngine.Debug.Log($"[GridEntity] Position changed to {value}. Waking up {VisualTransform.name}");
-                    }
-                }
-                else
-                {
-                    UnityEngine.Debug.LogWarning($"[GridEntity] VisualTransform is NULL for Entity Type {Type} at {value}!");
+                    _position = value;
+                    OnPositionChanged?.Invoke(_position);
                 }
             }
         }
@@ -34,9 +27,6 @@ namespace PolarBond.Entities
         {
             _position = position;
             Type = type;
-        }
-
-        // Potential visual linkage if tying logic to MonoBehaviour
-        public Transform VisualTransform { get; set; } 
+        } 
     }
 }

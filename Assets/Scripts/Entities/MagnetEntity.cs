@@ -18,6 +18,8 @@ namespace PolarBond.Entities
             WasOnReverseTile = false;
         }
 
+        public System.Action<MagneticPolarity> OnPolarityChanged;
+
         public void ReversePolarity()
         {
             if (Polarity == MagneticPolarity.North)
@@ -25,14 +27,7 @@ namespace PolarBond.Entities
             else if (Polarity == MagneticPolarity.South)
                 Polarity = MagneticPolarity.North;
 
-            if (VisualTransform != null)
-            {
-                var view = VisualTransform.GetComponent<PolarBond.Views.MagnetView>();
-                if (view != null)
-                {
-                    view.UpdatePolarityVisuals();
-                }
-            }
+            OnPolarityChanged?.Invoke(Polarity);
         }
     }
 }

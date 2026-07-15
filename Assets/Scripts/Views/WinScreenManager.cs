@@ -25,6 +25,17 @@ namespace PolarBond.Views
             if (winScreenCanvas != null)
             {
                 winScreenCanvas.SetActive(true);
+                CanvasGroup cg = winScreenCanvas.GetComponent<CanvasGroup>();
+                if (cg == null) cg = winScreenCanvas.AddComponent<CanvasGroup>();
+                cg.alpha = 0f;
+                UITweener.FadeTo(cg, 1f, 0.5f);
+                
+                if (winScreenCanvas.transform.childCount > 0)
+                {
+                    Transform panel = winScreenCanvas.transform.GetChild(0);
+                    panel.localScale = Vector3.zero;
+                    UITweener.ScaleTo(panel, Vector3.one, 0.5f);
+                }
             }
         }
 
@@ -32,7 +43,15 @@ namespace PolarBond.Views
         {
             if (winScreenCanvas != null)
             {
-                winScreenCanvas.SetActive(false);
+                CanvasGroup cg = winScreenCanvas.GetComponent<CanvasGroup>();
+                if (cg != null)
+                {
+                    UITweener.FadeTo(cg, 0f, 0.3f, () => winScreenCanvas.SetActive(false));
+                }
+                else
+                {
+                    winScreenCanvas.SetActive(false);
+                }
             }
         }
 

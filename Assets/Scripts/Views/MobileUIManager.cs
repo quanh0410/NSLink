@@ -188,7 +188,7 @@ namespace PolarBond.Views
         {
             if (MainMenuManager.Instance != null && MainMenuManager.Instance.optionsPopup != null)
             {
-                MainMenuManager.Instance.optionsPopup.SetActive(true);
+                MainMenuManager.Instance.OnClickOptions();
             }
             else
             {

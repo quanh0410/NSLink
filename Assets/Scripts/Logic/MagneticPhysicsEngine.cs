@@ -9,6 +9,9 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
     public class MagneticPhysicsEngine // Lớp công cụ vật lý từ tính, xử lý các tương tác của nam châm
     {
         private GridManager gridManager; // Biến cục bộ để giữ tham chiếu tới GridManager nhằm quản lý vị trí trên lưới
+        private MechanicalMovementSystem movementSystem;
+        private MagneticAttractionSystem attractionSystem;
+        private MagneticRepulsionSystem repulsionSystem;
 
         // Caches for Zero Allocation
         private HashSet<GridEntity> tentativeMovingCache = new HashSet<GridEntity>();
@@ -31,34 +34,20 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
         public MagneticPhysicsEngine(GridManager gridManager) // Hàm khởi tạo của lớp, nhận vào một GridManager
         {
             this.gridManager = gridManager; // Gán gridManager vào biến cục bộ để sử dụng sau này
+            this.movementSystem = new MechanicalMovementSystem(gridManager, this);
+            this.attractionSystem = new MagneticAttractionSystem(gridManager);
+            this.repulsionSystem = new MagneticRepulsionSystem(gridManager, this);
         }
 
         // Bước 1: Di chuyển cơ học (Mechanical Movement) - Do người chơi đẩy
         public bool TryMovePlayer(PlayerEntity player, Direction dir, List<MergedBlock> allBlocks) // Hàm thử di chuyển người chơi theo 1 hướng nhất định
         {
-            // Kiểm tra xem có lấy được danh sách các vật thể cần di chuyển không (bao gồm cả nam châm bị đẩy)
-            if (TryGetMovingEntities(player, dir, out HashSet<GridEntity> movingEntities))
-            {
-                Vector2Int offset = dir.ToVector2Int(); // Chuyển đổi hướng di chuyển (Direction) thành 1 vector 2D (ví dụ: sang phải là (1,0))
-                
-                foreach (var e in movingEntities) // Duyệt qua tất cả các vật thể sẽ bị di chuyển
-                {
-                    gridManager.RemoveEntity(e.Position); // Xóa vật thể khỏi vị trí cũ trên lưới grid
-                }
-                foreach (var e in movingEntities) // Duyệt lại danh sách các vật thể để cập nhật vị trí
-                {
-                    e.Position += offset; // Tăng vị trí của vật thể thêm 1 ô theo hướng di chuyển
-                    gridManager.AddEntity(e); // Đăng ký lại vật thể vào lưới grid ở vị trí mới
-                }
-                
-                return true; // Trả về true, báo hiệu di chuyển thành công
-            }
-            return false; // Nếu không tìm được danh sách vật thể di chuyển hợp lệ (bị kẹt), trả về false
+            return movementSystem.TryMovePlayer(player, dir, allBlocks);
         }
 
         private static RaycastHit2D[] hitBuffer = new RaycastHit2D[20]; // Buffer tĩnh để dùng lại nhiều lần không xả rác
 
-        private bool IsBlockedByWall(Vector2Int from, Vector2Int to) // Hàm kiểm tra xem đường đi từ ô 'from' đến ô 'to' có bị cản bởi tường không
+        public bool IsBlockedByWall(Vector2Int from, Vector2Int to) // Hàm kiểm tra xem đường đi từ ô 'from' đến ô 'to' có bị cản bởi tường không
         {
             GridEntity entity = gridManager.GetEntityAt(to); // Lấy thông tin vật thể tại vị trí đích (to) trên grid
             if (entity != null && entity.Type == EntityType.Wall) return true; // Nếu tại đích có 1 vật thể và nó là tường (Wall), thì bị chặn (return true)
@@ -87,7 +76,7 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
         }
 
         // Hàm kiểm tra xem một nam châm bị đẩy lùi (bởi từ trường) có thể di chuyển không, kiểm tra đệ quy
-        private bool CanRepelledMagnetMove(MagnetEntity mag, Vector2Int repelDir, int pushingMass, HashSet<GridEntity> tentativeMoving, HashSet<GridEntity> visited)
+        public bool CanRepelledMagnetMove(MagnetEntity mag, Vector2Int repelDir, int pushingMass, HashSet<GridEntity> tentativeMoving, HashSet<GridEntity> visited)
         {
             if (visited.Contains(mag)) return false; // Nếu nam châm này đã được duyệt qua (để tránh lặp vô hạn), trả về false
             
@@ -168,7 +157,7 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
         }
 
         // Kiểm tra xem từ vị trí tương lai (nextPos), cục đẩy có thể bị dội ngược theo hướng bounceDir không
-        private bool CanSimulateBounce(MagnetEntity currMag, Vector2Int nextPos, Vector2Int bounceDir, HashSet<GridEntity> tentativeMoving, Vector2Int moveDir)
+        public bool CanSimulateBounce(MagnetEntity currMag, Vector2Int nextPos, Vector2Int bounceDir, HashSet<GridEntity> tentativeMoving, Vector2Int moveDir)
         {
             Vector2Int bounceDest = nextPos + bounceDir;
             if (IsBlockedByWall(nextPos, bounceDest)) return false;
@@ -210,7 +199,7 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
         }
 
         // Hàm chính để gom tất cả các vật thể sẽ di chuyển cùng nhau khi có lực tác động
-        private bool TryGetMovingEntities(GridEntity startEntity, Direction dir, out HashSet<GridEntity> finalMoving)
+        public bool TryGetMovingEntities(GridEntity startEntity, Direction dir, out HashSet<GridEntity> finalMoving)
         {
             tentativeMovingCache.Clear();
             frontierCache.Clear();
@@ -467,203 +456,18 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
             return finalMoving.Contains(startEntity); // Kiểm tra lại xem gốc (người chơi) có đi được không
         }
 
-        // Hàm hỗ trợ tính toán tổng "khối lượng hiệu dụng" của một khối nam châm, bao gồm cả sức đẩy của người chơi
-        private int GetEffectiveMass(MagnetEntity mag)
-        {
-            // Lấy danh sách nam châm trong khối, hoặc tạo mảng 1 phần tử nếu đứng lẻ
-            List<MagnetEntity> magnets = mag.CurrentBlock != null ? mag.CurrentBlock.Magnets : new List<MagnetEntity> { mag };
-            int mass = magnets.Count; // Khối lượng cơ bản là tổng số cục nam châm
-            
-            foreach (var m in magnets) // Duyệt qua từng nam châm
-            {
-                Vector2Int[] adj = AdjacentDirections; // 4 hướng kề cạnh
-                foreach (var d in adj) // Quét xung quanh
-                {
-                    GridEntity entity = gridManager.GetEntityAt(m.Position + d); // Lấy thực thể kế bên
-                    if (entity != null && entity.Type == EntityType.Player) // Nếu kế bên có người chơi
-                    {
-                        return mass + 3; // Người chơi chống lưng thì được cộng thêm 3 vào sức kháng lực/đẩy
-                    }
-                }
-            }
-            return mass; // Trả về khối lượng bình thường
-        }
-
-        // Tính toán và áp dụng các lực đẩy (Repulsion) thụ động giữa các nam châm trên lưới
         public bool ApplyRepulsion(List<MergedBlock> allBlocks)
         {
-            netForcesCache.Clear();
-            Dictionary<MagnetEntity, Vector2Int> netForces = netForcesCache; // Từ điển lưu tổng lực trên mỗi nam châm
-            
-            entitiesCache.Clear();
-            entitiesCache.AddRange(gridManager.GetAllEntities());
-            var entities = entitiesCache; // Lấy toàn bộ thực thể
-            
-            for (int i = 0; i < entities.Count; i++) // Duyệt thực thể thứ 1
-            {
-                if (entities[i] is MagnetEntity m1) // Nếu là nam châm
-                {
-                    for (int j = i + 1; j < entities.Count; j++) // Duyệt thực thể thứ 2 (tránh so sánh 2 lần)
-                    {
-                        if (entities[j] is MagnetEntity m2) // Nếu thực thể 2 cũng là nam châm
-                        {
-                            // Nếu hai nam châm cùng cực (cùng loại âm/dương) và nằm kề nhau
-                            if (m1.Polarity == m2.Polarity && IsAdjacent(m1.Position, m2.Position))
-                            {
-                                int size1 = GetEffectiveMass(m1); // Lấy độ nặng của khối 1
-                                int size2 = GetEffectiveMass(m2); // Lấy độ nặng của khối 2
-                                
-                                Vector2Int diff = m2.Position - m1.Position; // Tính hướng từ m1 sang m2
-                                Vector2Int forceOnM2 = diff; // Lực tác động lên m2 đẩy m2 ra xa
-                                Vector2Int forceOnM1 = -diff; // Lực tác động lên m1 đẩy m1 ra xa
-                                
-                                if (size1 < size2) // Nếu khối 1 nhẹ hơn khối 2
-                                {
-                                    // m1 nhẹ hơn. Kiểm tra xem m1 có bị kẹt không (với sức đẩy của m2)
-                                    visitedCache.Clear();
-                                    emptyTentativeCache.Clear();
-                                    if (CanRepelledMagnetMove(m1, forceOnM1, size2, emptyTentativeCache, visitedCache))
-                                        AddForce(netForces, m1, forceOnM1); // m1 trượt ra xa
-                                    else
-                                        AddForce(netForces, m2, forceOnM2); // m1 kẹt, dội phản lực sang m2
-                                }
-                                else if (size2 < size1) // Nếu khối 2 nhẹ hơn khối 1
-                                {
-                                    // m2 nhẹ hơn. Kiểm tra xem m2 có bị kẹt không (với sức đẩy của m1)
-                                    visitedCache.Clear();
-                                    emptyTentativeCache.Clear();
-                                    if (CanRepelledMagnetMove(m2, forceOnM2, size1, emptyTentativeCache, visitedCache))
-                                        AddForce(netForces, m2, forceOnM2); // m2 trượt ra xa
-                                    else
-                                        AddForce(netForces, m1, forceOnM1); // m2 kẹt, dội phản lực sang m1
-                                }
-                                else // Nếu hai khối nặng bằng nhau
-                                {
-                                    // Kiểm tra độc lập xem mỗi khối có đi được không
-                                    visitedCache.Clear();
-                                    emptyTentativeCache.Clear();
-                                    bool m1CanMove = CanRepelledMagnetMove(m1, forceOnM1, size2, emptyTentativeCache, visitedCache);
-                                    
-                                    visitedCache.Clear();
-                                    bool m2CanMove = CanRepelledMagnetMove(m2, forceOnM2, size1, emptyTentativeCache, visitedCache);
-                                    
-                                    if (m1CanMove) AddForce(netForces, m1, forceOnM1);
-                                    if (m2CanMove) AddForce(netForces, m2, forceOnM2);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            repulsionsCache.Clear();
-            List<(MagnetEntity mag, Direction dir)> repulsions = repulsionsCache; // Danh sách các nam châm sẽ bị văng ra
-            foreach (var kvp in netForces) // Duyệt qua từ điển các lực tổng hợp
-            {
-                if (kvp.Value == Vector2Int.zero) continue; // Nếu lực triệt tiêu bằng 0 thì bỏ qua
-                
-                if (kvp.Value.x != 0 && kvp.Value.y == 0) // Lực chỉ theo trục X ngang
-                {
-                    repulsions.Add((kvp.Key, kvp.Value.x > 0 ? Direction.Right : Direction.Left)); // Chuyển thành hướng Right/Left
-                }
-                else if (kvp.Value.y != 0 && kvp.Value.x == 0) // Lực chỉ theo trục Y dọc
-                {
-                    repulsions.Add((kvp.Key, kvp.Value.y > 0 ? Direction.Up : Direction.Down)); // Chuyển thành hướng Up/Down
-                }
-            }
-            
-            bool anyMoved = false; // Cờ kiểm tra xem có ai di chuyển không
-            alreadyMovedCache.Clear();
-            HashSet<GridEntity> alreadyMoved = alreadyMovedCache; // Tập các nam châm đã di chuyển để tránh đẩy trùng
-            foreach (var rep in repulsions) // Duyệt qua danh sách các nam châm bị văng ra
-            {
-                if (alreadyMoved.Contains(rep.mag)) continue; // Nếu đã bay đi rồi thì bỏ qua
-                // Thử di chuyển nam châm bị văng theo hướng đẩy lùi
-                if (TryGetMovingEntities(rep.mag, rep.dir, out HashSet<GridEntity> movingEntities))
-                {
-                    anyMoved = true; // Bật cờ có chuyển động
-                    Vector2Int offset = rep.dir.ToVector2Int(); // Tính độ dời
-                    foreach (var e in movingEntities) gridManager.RemoveEntity(e.Position); // Xóa khỏi vị trí cũ
-                    foreach (var e in movingEntities) 
-                    { 
-                        e.Position += offset; // Tăng vị trí
-                        gridManager.AddEntity(e); // Thêm lại
-                        alreadyMoved.Add(e); // Đánh dấu đã di chuyển
-                    }
-                }
-            }
-
-            return anyMoved; // Trả về kết quả xem có xảy ra lực đẩy làm di chuyển vật không
+            return repulsionSystem.ApplyRepulsion(allBlocks);
         }
 
-        // Hàm tiện ích để cộng dồn lực vào từ điển netForces
-        private void AddForce(Dictionary<MagnetEntity, Vector2Int> forces, MagnetEntity mag, Vector2Int force)
-        {
-            if (forces.ContainsKey(mag)) // Nếu nam châm đã chịu lực
-                forces[mag] += force; // Cộng dồn lực mới vào
-            else
-                forces[mag] = force; // Gán lực đầu tiên
-        }
-
-        // Bước 4: Xử lý lực hút (Attraction) và hợp khối
         public void ProcessAttraction(List<MergedBlock> allBlocks)
         {
-            // Tái tạo lại danh sách khối từ các nam châm đơn lẻ. Giúp việc tách khối dễ dàng hơn ở mỗi lượt
-            foreach (var block in allBlocks)
-            {
-                MergedBlock.ReturnToPool(block);
-            }
-            allBlocks.Clear(); // Xóa sạch danh sách khối cũ
-            foreach (var entity in gridManager.GetAllEntities()) // Duyệt các vật thể
-            {
-                if (entity is MagnetEntity mag) // Nếu là nam châm
-                {
-                    allBlocks.Add(MergedBlock.Get(mag)); // Tạo một khối mới chỉ chứa nam châm này bằng Pool
-                }
-            }
-            
-            bool mergedSomething = true; // Cờ theo dõi vòng lặp hút khối
-            while (mergedSomething) // Lặp cho tới khi không còn khối nào dính thêm
-            {
-                mergedSomething = false; // Khởi tạo lại cờ
-                for (int i = 0; i < allBlocks.Count; i++) // Lấy khối thứ 1
-                {
-                    for (int j = i + 1; j < allBlocks.Count; j++) // Lấy khối thứ 2
-                    {
-                        // Kiểm tra xem 2 khối này có hút nhau không
-                        if (CheckAndMerge(allBlocks[i], allBlocks[j]))
-                        {
-                            MergedBlock.ReturnToPool(allBlocks[j]); // Trả khối cũ về pool
-                            allBlocks.RemoveAt(j); // Nếu hút, khối j gộp vào khối i, nên xóa khối j đi
-                            mergedSomething = true; // Đánh dấu là có hợp khối
-                            break; // Thoát vòng lặp con để bắt đầu quy trình quét lại từ đầu
-                        }
-                    }
-                    if (mergedSomething) break; // Thoát vòng lặp ngoài để quét lại
-                }
-            }
-        }
-
-        // Hàm kiểm tra xem 2 khối có nằm kề nhau và trái cực không. Có thì gộp chúng
-        private bool CheckAndMerge(MergedBlock b1, MergedBlock b2)
-        {
-            foreach (var m1 in b1.Magnets) // Lấy từng nam châm của khối 1
-            {
-                foreach (var m2 in b2.Magnets) // Lấy từng nam châm của khối 2
-                {
-                    // Nếu 2 nam châm kề cạnh (Adjacent) và ngược cực tính (khác Polarity)
-                    if (IsAdjacent(m1.Position, m2.Position) && m1.Polarity != m2.Polarity)
-                    {
-                        b1.MergeWith(b2); // Tiến hành hợp khối 2 vào khối 1
-                        return true; // Báo hiệu hợp khối thành công
-                    }
-                }
-            }
-            return false; // Không có nam châm nào trái cực kề nhau
+            attractionSystem.ProcessAttraction(allBlocks);
         }
 
         // Hàm kiểm tra 2 tọa độ p1, p2 có kề cạnh nhau (trên, dưới, trái, phải) hay không
-        private bool IsAdjacent(Vector2Int p1, Vector2Int p2)
+        public bool IsAdjacent(Vector2Int p1, Vector2Int p2)
         {
             int dx = Mathf.Abs(p1.x - p2.x); // Khoảng cách trục X
             int dy = Mathf.Abs(p1.y - p2.y); // Khoảng cách trục Y
