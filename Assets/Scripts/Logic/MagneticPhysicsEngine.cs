@@ -160,6 +160,12 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
         public bool CanSimulateBounce(MagnetEntity currMag, Vector2Int nextPos, Vector2Int bounceDir, HashSet<GridEntity> tentativeMoving, Vector2Int moveDir)
         {
             Vector2Int bounceDest = nextPos + bounceDir;
+            
+            // Nếu lực dội đẩy nam châm quay ngược lại chính vị trí xuất phát,
+            // điều này tương đương với việc từ trường cản lại hoàn toàn (đẩy trực diện).
+            // Trong trường hợp này, nam châm không thể bước vào ô nextPos.
+            if (bounceDest == currMag.Position) return false;
+
             if (IsBlockedByWall(nextPos, bounceDest)) return false;
 
             GridEntity obstacle = null;

@@ -12,7 +12,14 @@ namespace PolarBond.Views
         [Header("Visual Prefabs")]
         public GameObject northPrefab;
         public GameObject southPrefab;
+        
+        [Header("Sprites (Glow Effect)")]
+        public Sprite northGlowSprite;
+        public Sprite southGlowSprite;
+        
         private GameObject currentVisualInstance;
+        private SpriteRenderer cachedRenderer;
+        private Sprite originalSprite;
 
         public override void Initialize(GridEntity entity)
         {
@@ -20,6 +27,7 @@ namespace PolarBond.Views
             if (entity is MagnetEntity magnetLogic)
             {
                 magnetLogic.OnPolarityChanged += OnPolarityChangedHandler;
+                magnetLogic.OnTargetStateChanged += OnTargetStateChangedHandler;
             }
             UpdatePolarityVisuals();
         }
@@ -30,6 +38,7 @@ namespace PolarBond.Views
             if (LogicEntity is MagnetEntity magnetLogic)
             {
                 magnetLogic.OnPolarityChanged -= OnPolarityChangedHandler;
+                magnetLogic.OnTargetStateChanged -= OnTargetStateChangedHandler;
             }
         }
 
@@ -38,11 +47,16 @@ namespace PolarBond.Views
             UpdatePolarityVisuals();
         }
 
+        private void OnTargetStateChangedHandler(bool isOnTarget)
+        {
+            UpdateGlowState(isOnTarget);
+        }
+
         public void UpdatePolarityVisuals()
         {
-            if (LogicEntity is MagnetEntity magnetLogic)
+            if (LogicEntity is MagnetEntity ml)
             {
-                Polarity = magnetLogic.Polarity;
+                Polarity = ml.Polarity;
             }
 
             if (northPrefab != null && southPrefab != null)
@@ -68,6 +82,67 @@ namespace PolarBond.Views
                 foreach (var comp in currentVisualInstance.GetComponentsInChildren<Collider2D>()) Destroy(comp);
                 foreach (var comp in currentVisualInstance.GetComponentsInChildren<Rigidbody2D>()) Destroy(comp);
                 foreach (var comp in currentVisualInstance.GetComponentsInChildren<EntityView>()) Destroy(comp);
+
+                // Cache sprite components for glow effect from the instantiated prefab
+                cachedRenderer = currentVisualInstance.GetComponentInChildren<SpriteRenderer>();
+
+                // Disable root SpriteRenderer to prevent it from overlapping and hiding the clone's visual
+                SpriteRenderer rootSr = GetComponent<SpriteRenderer>();
+                if (rootSr != null)
+                {
+                    rootSr.enabled = false;
+                }
+            }
+            else
+            {
+                // Fallback: If not using prefabs, try to get SpriteRenderer on the root object
+                cachedRenderer = GetComponent<SpriteRenderer>();
+            }
+
+            if (cachedRenderer != null)
+            {
+                originalSprite = cachedRenderer.sprite;
+            }
+
+            if (LogicEntity is MagnetEntity magnetEntityLogic)
+            {
+                UpdateGlowState(magnetEntityLogic.IsOnTarget);
+            }
+        }
+
+        private void UpdateGlowState(bool isOnTarget)
+        {
+            if (cachedRenderer == null)
+            {
+                Debug.LogWarning($"[MagnetView] UpdateGlowState called but cachedRenderer is null on {gameObject.name}");
+                return;
+            }
+
+            Debug.Log($"[MagnetView] UpdateGlowState on {gameObject.name} (Polarity: {Polarity}), isOnTarget: {isOnTarget}");
+
+            if (isOnTarget)
+            {
+                if (Polarity == MagneticPolarity.North && northGlowSprite != null)
+                {
+                    Debug.Log($"[MagnetView] Setting North Glow Sprite on {gameObject.name}");
+                    cachedRenderer.sprite = northGlowSprite;
+                }
+                else if (Polarity == MagneticPolarity.South && southGlowSprite != null)
+                {
+                    Debug.Log($"[MagnetView] Setting South Glow Sprite on {gameObject.name}");
+                    cachedRenderer.sprite = southGlowSprite;
+                }
+                else
+                {
+                    Debug.LogWarning($"[MagnetView] isOnTarget is true but Glow Sprite is missing for {Polarity} on {gameObject.name}");
+                }
+            }
+            else
+            {
+                if (originalSprite != null)
+                {
+                    cachedRenderer.sprite = originalSprite;
+                }
             }
         }
     }

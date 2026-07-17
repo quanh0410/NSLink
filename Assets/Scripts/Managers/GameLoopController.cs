@@ -80,10 +80,20 @@ namespace PolarBond.Logic
             
             if (!playerMoved)
             {
+                GridEntity entityAhead = gridManager.GetEntityAt(player.Position + playerInput.ToVector2Int());
+                if (entityAhead != null && entityAhead.Type == EntityType.Magnet)
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayErrorSound();
+                }
+
                 // If player didn't move, we just drop the saved state instead of performing a full Undo.
                 // This fixes the bug where views get disconnected.
                 undoManager.DropLastState(); 
                 return;
+            }
+            else
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayMoveSound();
             }
             // --- VÒNG LẶP ĐỘNG (PHYSICS RESOLVE LOOP) ---
             int iterations = 0;
@@ -121,7 +131,10 @@ namespace PolarBond.Logic
                 }
             }
 
-            // Step 5: Check Win Condition
+            // Pha 5: Cập nhật trạng thái mục tiêu (để hiển thị hình ảnh phát sáng)
+            EvaluateMagnetTargets();
+
+            // Step 6: Check Win Condition
             if (!isLevelComplete && winConditionSystem.Check())
             {
                 isLevelComplete = true;
@@ -166,8 +179,38 @@ namespace PolarBond.Logic
             Debug.Log("[GameLoopController] UndoTurn called!");
             bool success = undoManager.Undo(player, allBlocks);
             Debug.Log($"[GameLoopController] Undo result: {success}");
+            
+            if (success)
+            {
+                EvaluateMagnetTargets();
+            }
         }
 
+        public void EvaluateMagnetTargets()
+        {
+            var targets = gridManager.GetTargetTiles();
+            Debug.Log($"[EvaluateMagnetTargets] Bắt đầu quét. Tổng số target: {targets.Count}, số lượng block: {allBlocks.Count}");
+            foreach (var block in allBlocks)
+            {
+                foreach (var magnet in block.Magnets)
+                {
+                    bool isOnTarget = false;
+                    if (targets.TryGetValue(magnet.Position, out TargetType tType))
+                    {
+                        if (tType == TargetType.NorthTarget && magnet.Polarity == MagneticPolarity.North)
+                        {
+                            isOnTarget = true;
+                        }
+                        else if (tType == TargetType.SouthTarget && magnet.Polarity == MagneticPolarity.South)
+                        {
+                            isOnTarget = true;
+                        }
+                    }
+                    Debug.Log($"[EvaluateMagnetTargets] Magnet tại {magnet.Position} đang ở trên đích? {isOnTarget}");
+                    magnet.SetTargetState(isOnTarget);
+                }
+            }
+        }
 
     }
 }

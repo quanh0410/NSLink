@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1529662216027306764
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 50495470691764910}
+  - component: {fileID: 3979194326515650904}
+  m_Layer: 0
+  m_Name: AudioManagerPrefab
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &50495470691764910
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529662216027306764}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.58472, y: -0.23224, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3979194326515650904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529662216027306764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5694f8f7b7c6b04ba4118a17fc404d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PolarBond.Managers.AudioManager
+  mainMixer: {fileID: 24100000, guid: fac22cf5cbe4d4843b92e7ce37e5ea3e, type: 2}
+  bgm:
+    clip: {fileID: 8300000, guid: 7d46d714329cd0b4783d88e9a7a754a8, type: 3}
+    volume: 0.3
+    pitch: 1
+  linkSound:
+    clip: {fileID: 8300000, guid: 5ad8654d9ac0c634dba605d36e2f7b50, type: 3}
+    volume: 0.9
+    pitch: 1
+  moveSound:
+    clip: {fileID: 8300000, guid: 5e8b88f989647d746b259893329a856f, type: 3}
+    volume: 0.3
+    pitch: 1
+  targetSound:
+    clip: {fileID: 8300000, guid: 42e6541da8c818a469d93a6f585f7e13, type: 3}
+    volume: 0.6
+    pitch: 1
+  winSound:
+    clip: {fileID: 8300000, guid: 9e16badb13fcfa14f98809230e574d6c, type: 3}
+    volume: 0.8
+    pitch: 1
+  errorSound:
+    clip: {fileID: 8300000, guid: f70dc3ffc72319c4bb1c4c0cb95b0aaf, type: 3}
+    volume: 0.7
+    pitch: 1

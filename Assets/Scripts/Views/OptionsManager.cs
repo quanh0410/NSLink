@@ -5,26 +5,44 @@ namespace PolarBond.Views
 {
     public class OptionsManager : MonoBehaviour
     {
-        public Slider volumeSlider;
+        public Slider bgmSlider;
+        public Slider sfxSlider;
 
         private void Start()
         {
-            // Load saved volume or default to 1
-            float savedVol = PlayerPrefs.GetFloat("MasterVolume", 1f);
-            if (volumeSlider != null)
+            // Load saved volumes or default to 1
+            float bgmVol = PlayerPrefs.GetFloat("BGMVolume", 1f);
+            float sfxVol = PlayerPrefs.GetFloat("SFXVolume", 1f);
+
+            if (bgmSlider != null)
             {
-                volumeSlider.value = savedVol;
-                volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+                bgmSlider.value = bgmVol;
+                bgmSlider.onValueChanged.AddListener(OnBGMVolumeChanged);
             }
-            
-            AudioListener.volume = savedVol;
+
+            if (sfxSlider != null)
+            {
+                sfxSlider.value = sfxVol;
+                sfxSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+            }
         }
 
-        public void OnVolumeChanged(float value)
+        public void OnBGMVolumeChanged(float value)
         {
-            AudioListener.volume = value;
-            PlayerPrefs.SetFloat("MasterVolume", value);
+            PlayerPrefs.SetFloat("BGMVolume", value);
             PlayerPrefs.Save();
+            
+            if (Managers.AudioManager.Instance != null)
+            {
+                Managers.AudioManager.Instance.SetBGMVolume(value);
+            }
+        }
+
+        public void OnSFXVolumeChanged(float value)
+        {
+            PlayerPrefs.SetFloat("SFXVolume", value);
+            PlayerPrefs.Save();
+            // SFX volume will be applied automatically the next time a sound plays in AudioManager
         }
 
         public void OnClickClose()

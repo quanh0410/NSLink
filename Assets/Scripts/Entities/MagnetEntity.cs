@@ -19,6 +19,21 @@ namespace PolarBond.Entities
         }
 
         public System.Action<MagneticPolarity> OnPolarityChanged;
+        public System.Action<bool> OnTargetStateChanged;
+        public bool IsOnTarget { get; private set; }
+
+        public void SetTargetState(bool isOnTarget)
+        {
+            if (IsOnTarget != isOnTarget)
+            {
+                IsOnTarget = isOnTarget;
+                OnTargetStateChanged?.Invoke(IsOnTarget);
+                if (IsOnTarget && Managers.AudioManager.Instance != null)
+                {
+                    Managers.AudioManager.Instance.PlayTargetSound();
+                }
+            }
+        }
 
         public void ReversePolarity()
         {

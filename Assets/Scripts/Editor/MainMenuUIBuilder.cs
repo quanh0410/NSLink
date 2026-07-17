@@ -182,48 +182,84 @@ namespace PolarBond.Editor
             Image volImg = volIconObj.AddComponent<Image>();
             if (audioIconSprite != null) volImg.sprite = audioIconSprite;
 
-            GameObject sliderObj = new GameObject("VolumeSlider");
-            sliderObj.transform.SetParent(windowObj.transform, false);
-            RectTransform sliderRect = sliderObj.AddComponent<RectTransform>();
-            sliderRect.anchorMin = new Vector2(0.5f, 0.7f);
-            sliderRect.anchorMax = new Vector2(0.5f, 0.7f);
-            sliderRect.pivot = new Vector2(0.5f, 0.5f);
-            sliderRect.anchoredPosition = new Vector2(60, 0);
-            sliderRect.sizeDelta = new Vector2(500, 60);
-            Image sliderBgImg = sliderObj.AddComponent<Image>();
-            if (sliderBgSprite != null) { sliderBgImg.sprite = sliderBgSprite; sliderBgImg.type = Image.Type.Sliced; }
+            // Hàm hỗ trợ tạo Slider
+            Slider CreateSlider(string name, float yPos)
+            {
+                GameObject sliderObj = new GameObject(name);
+                sliderObj.transform.SetParent(windowObj.transform, false);
+                RectTransform sliderRect = sliderObj.AddComponent<RectTransform>();
+                sliderRect.anchorMin = new Vector2(0.5f, 0.7f);
+                sliderRect.anchorMax = new Vector2(0.5f, 0.7f);
+                sliderRect.pivot = new Vector2(0.5f, 0.5f);
+                sliderRect.anchoredPosition = new Vector2(60, yPos);
+                sliderRect.sizeDelta = new Vector2(500, 60);
+                Image sliderBgImg = sliderObj.AddComponent<Image>();
+                if (sliderBgSprite != null) { sliderBgImg.sprite = sliderBgSprite; sliderBgImg.type = Image.Type.Sliced; }
 
-            GameObject fillAreaObj = new GameObject("Fill Area");
-            fillAreaObj.transform.SetParent(sliderObj.transform, false);
-            RectTransform fillAreaRect = fillAreaObj.AddComponent<RectTransform>();
-            fillAreaRect.anchorMin = Vector2.zero;
-            fillAreaRect.anchorMax = Vector2.one;
-            fillAreaRect.sizeDelta = new Vector2(-20, 0);
+                GameObject fillAreaObj = new GameObject("Fill Area");
+                fillAreaObj.transform.SetParent(sliderObj.transform, false);
+                RectTransform fillAreaRect = fillAreaObj.AddComponent<RectTransform>();
+                fillAreaRect.anchorMin = Vector2.zero;
+                fillAreaRect.anchorMax = Vector2.one;
+                fillAreaRect.sizeDelta = new Vector2(-20, 0);
 
-            GameObject fillObj = new GameObject("Fill");
-            fillObj.transform.SetParent(fillAreaObj.transform, false);
-            RectTransform fillRect = fillObj.AddComponent<RectTransform>();
-            fillRect.sizeDelta = Vector2.zero;
-            // No fill image for this style, we just use handle
+                GameObject fillObj = new GameObject("Fill");
+                fillObj.transform.SetParent(fillAreaObj.transform, false);
+                RectTransform fillRect = fillObj.AddComponent<RectTransform>();
+                fillRect.sizeDelta = Vector2.zero;
 
-            GameObject handleAreaObj = new GameObject("Handle Slide Area");
-            handleAreaObj.transform.SetParent(sliderObj.transform, false);
-            RectTransform handleAreaRect = handleAreaObj.AddComponent<RectTransform>();
-            handleAreaRect.anchorMin = Vector2.zero;
-            handleAreaRect.anchorMax = Vector2.one;
-            handleAreaRect.sizeDelta = new Vector2(-40, 0);
+                GameObject handleAreaObj = new GameObject("Handle Slide Area");
+                handleAreaObj.transform.SetParent(sliderObj.transform, false);
+                RectTransform handleAreaRect = handleAreaObj.AddComponent<RectTransform>();
+                handleAreaRect.anchorMin = Vector2.zero;
+                handleAreaRect.anchorMax = Vector2.one;
+                handleAreaRect.sizeDelta = new Vector2(-40, 0);
 
-            GameObject handleHandleObj = new GameObject("Handle");
-            handleHandleObj.transform.SetParent(handleAreaObj.transform, false);
-            RectTransform handleHandleRect = handleHandleObj.AddComponent<RectTransform>();
-            handleHandleRect.sizeDelta = new Vector2(80, 80);
-            Image handleImg = handleHandleObj.AddComponent<Image>();
-            if (sliderHandleSprite != null) handleImg.sprite = sliderHandleSprite;
+                GameObject handleHandleObj = new GameObject("Handle");
+                handleHandleObj.transform.SetParent(handleAreaObj.transform, false);
+                RectTransform handleHandleRect = handleHandleObj.AddComponent<RectTransform>();
+                handleHandleRect.sizeDelta = new Vector2(80, 80);
+                Image handleImg = handleHandleObj.AddComponent<Image>();
+                if (sliderHandleSprite != null) handleImg.sprite = sliderHandleSprite;
 
-            Slider slider = sliderObj.AddComponent<Slider>();
-            slider.handleRect = handleHandleRect;
-            slider.value = 1f;
-            optManager.volumeSlider = slider;
+                Slider slider = sliderObj.AddComponent<Slider>();
+                slider.handleRect = handleHandleRect;
+                slider.value = 1f;
+                return slider;
+            }
+
+            optManager.bgmSlider = CreateSlider("BGMSlider", 40f);
+            optManager.sfxSlider = CreateSlider("SFXSlider", -40f);
+
+            // BGM Label
+            GameObject bgmLabelObj = new GameObject("BGMLabel");
+            bgmLabelObj.transform.SetParent(optManager.bgmSlider.transform, false);
+            RectTransform bgmLabelRect = bgmLabelObj.AddComponent<RectTransform>();
+            bgmLabelRect.anchorMin = new Vector2(0.5f, 1);
+            bgmLabelRect.anchorMax = new Vector2(0.5f, 1);
+            bgmLabelRect.pivot = new Vector2(0.5f, 0);
+            bgmLabelRect.anchoredPosition = new Vector2(0, 10);
+            bgmLabelRect.sizeDelta = new Vector2(500, 40);
+            Text bgmTxt = bgmLabelObj.AddComponent<Text>();
+            bgmTxt.text = "Nhạc nền";
+            bgmTxt.fontSize = 35;
+            bgmTxt.color = Color.black;
+            bgmTxt.alignment = TextAnchor.MiddleCenter;
+
+            // SFX Label
+            GameObject sfxLabelObj = new GameObject("SFXLabel");
+            sfxLabelObj.transform.SetParent(optManager.sfxSlider.transform, false);
+            RectTransform sfxLabelRect = sfxLabelObj.AddComponent<RectTransform>();
+            sfxLabelRect.anchorMin = new Vector2(0.5f, 1);
+            sfxLabelRect.anchorMax = new Vector2(0.5f, 1);
+            sfxLabelRect.pivot = new Vector2(0.5f, 0);
+            sfxLabelRect.anchoredPosition = new Vector2(0, 10);
+            sfxLabelRect.sizeDelta = new Vector2(500, 40);
+            Text sfxTxt = sfxLabelObj.AddComponent<Text>();
+            sfxTxt.text = "Hiệu ứng";
+            sfxTxt.fontSize = 35;
+            sfxTxt.color = Color.black;
+            sfxTxt.alignment = TextAnchor.MiddleCenter;
 
             // Instructions text
             GameObject instBgObj = new GameObject("InstructionsBg");

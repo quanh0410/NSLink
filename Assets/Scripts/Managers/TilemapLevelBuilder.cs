@@ -224,6 +224,9 @@ namespace PolarBond.Managers
             
             // Reset win state since we loaded a new level
             GameController.ResetWinState();
+            
+            // Cập nhật trạng thái hiển thị phát sáng ban đầu cho các khối nam châm
+            GameController.EvaluateMagnetTargets();
         }
 
         private Vector2Int GetGridPos(Vector3 position)

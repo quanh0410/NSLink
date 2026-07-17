@@ -110,6 +110,8 @@ MonoBehaviour:
   Polarity: 2
   northPrefab: {fileID: 1847667836605970072, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
   southPrefab: {fileID: 6530300087960876515}
+  northGlowSprite: {fileID: 5449680388636616823, guid: 85cee117c54236f4f9f99bb54b749437, type: 3}
+  southGlowSprite: {fileID: -5347798198546242573, guid: 85cee117c54236f4f9f99bb54b749437, type: 3}
 --- !u!61 &3320739899163053375
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -148,7 +150,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 5.00006, y: 5.0000005}
+    oldSize: {x: 1.0000119, y: 1}
     newSize: {x: 5.00006, y: 5.0000005}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

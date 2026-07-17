@@ -24,6 +24,7 @@ namespace PolarBond.Views
         {
             if (winScreenCanvas != null)
             {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayWinSound();
                 winScreenCanvas.SetActive(true);
                 CanvasGroup cg = winScreenCanvas.GetComponent<CanvasGroup>();
                 if (cg == null) cg = winScreenCanvas.AddComponent<CanvasGroup>();

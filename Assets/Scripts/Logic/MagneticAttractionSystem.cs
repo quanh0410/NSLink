@@ -16,6 +16,8 @@ namespace PolarBond.Logic
 
         public void ProcessAttraction(List<MergedBlock> allBlocks)
         {
+            int originalBlockCount = allBlocks.Count;
+
             foreach (var block in allBlocks)
             {
                 MergedBlock.ReturnToPool(block);
@@ -47,6 +49,11 @@ namespace PolarBond.Logic
                     }
                     if (mergedSomething) break;
                 }
+            }
+
+            if (allBlocks.Count < originalBlockCount)
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayLinkSound();
             }
         }
 
