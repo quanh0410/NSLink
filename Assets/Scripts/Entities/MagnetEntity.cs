@@ -28,10 +28,6 @@ namespace PolarBond.Entities
             {
                 IsOnTarget = isOnTarget;
                 OnTargetStateChanged?.Invoke(IsOnTarget);
-                if (IsOnTarget && Managers.AudioManager.Instance != null)
-                {
-                    Managers.AudioManager.Instance.PlayTargetSound();
-                }
             }
         }
 

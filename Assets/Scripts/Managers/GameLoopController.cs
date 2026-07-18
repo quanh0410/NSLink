@@ -104,10 +104,10 @@ namespace PolarBond.Logic
             {
                 stateChanged = false;
 
-                // Pha 1: Hút (Attraction) - Gom cụm trước
+                // Pha 1: Hút (Attraction) - Gộp/tách khối sau khi có sự di chuyển làm thay đổi liên kết
                 physicsEngine.ProcessAttraction(allBlocks);
 
-                // Pha 2 & 3: Đẩy (Repulsion) & Tách khối (Splitting/Collision)
+                // Pha 2: Đẩy (Repulsion) - Dựa trên các khối đã được cập nhật chính xác
                 bool repulsed = physicsEngine.ApplyRepulsion(allBlocks);
                 
                 if (repulsed)
@@ -124,7 +124,7 @@ namespace PolarBond.Logic
                     }
                 }
 
-                // Pha 4: Kiểm tra Reverse Polarity (Đảo Cực)
+                // Pha 3: Kiểm tra Reverse Polarity (Đảo Cực)
                 if (tileEffectSystem.ProcessEffects(allBlocks))
                 {
                     stateChanged = true; // Trạng thái thay đổi, tiếp tục tính toán Hút/Đẩy
@@ -190,6 +190,7 @@ namespace PolarBond.Logic
         {
             var targets = gridManager.GetTargetTiles();
             Debug.Log($"[EvaluateMagnetTargets] Bắt đầu quét. Tổng số target: {targets.Count}, số lượng block: {allBlocks.Count}");
+            bool anyNewTargetReached = false;
             foreach (var block in allBlocks)
             {
                 foreach (var magnet in block.Magnets)
@@ -207,8 +208,16 @@ namespace PolarBond.Logic
                         }
                     }
                     Debug.Log($"[EvaluateMagnetTargets] Magnet tại {magnet.Position} đang ở trên đích? {isOnTarget}");
+                    if (isOnTarget && !magnet.IsOnTarget)
+                    {
+                        anyNewTargetReached = true;
+                    }
                     magnet.SetTargetState(isOnTarget);
                 }
+            }
+            if (anyNewTargetReached && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayTargetSound();
             }
         }
 

@@ -88,27 +88,42 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
                     if (!tentativeMoving.Contains(m)) // Nếu nam châm này chưa nằm trong nhóm "đang tính toán di chuyển"
                     {
                         blockMagnets.Add(m); // Thêm nó vào danh sách khối cần bị đẩy
-                        visited.Add(m); // Đánh dấu là đã duyệt qua
                     }
                 }
             }
             else // Nếu nam châm đứng lẻ loi (không thuộc khối nào)
             {
                 blockMagnets.Add(mag); // Thêm chính nó vào danh sách
-                visited.Add(mag); // Đánh dấu nó đã duyệt qua
             }
 
-            int targetMass = blockMagnets.Count > 0 ? blockMagnets.Count : 1; // Khối lượng cần đẩy chính là số lượng nam châm trong khối
-            if (pushingMass < targetMass) return false; // Nếu lực đẩy (khối lượng đẩy) nhỏ hơn khối lượng của khối, thì không thể đẩy được
+            // Lọc bỏ những nam châm bị vướng tường (chúng sẽ bị gãy khỏi khối)
+            List<MagnetEntity> unblockedMagnets = new List<MagnetEntity>();
+            foreach (var m in blockMagnets)
+            {
+                Vector2Int nextPos = m.Position + repelDir;
+                if (!IsBlockedByWall(m.Position, nextPos))
+                {
+                    unblockedMagnets.Add(m);
+                }
+            }
+
+            // Nếu chính nam châm chịu lực trực tiếp bị kẹt tường, thì không thể đẩy được
+            if (!unblockedMagnets.Contains(mag)) return false;
+
+            // Đánh dấu đã duyệt cho các nam châm CÓ THỂ di chuyển
+            foreach(var m in unblockedMagnets) visited.Add(m);
+
+            int targetMass = unblockedMagnets.Count > 0 ? unblockedMagnets.Count : 1; // Khối lượng cần đẩy
+            if (pushingMass < targetMass) return false; // Nếu lực đẩy nhỏ hơn khối lượng, thì không đẩy được
             
-            foreach (var m in blockMagnets) // Duyệt qua tất cả các nam châm trong khối bị đẩy
+            foreach (var m in unblockedMagnets) // Duyệt qua tất cả các nam châm trong khối bị đẩy
             {
                 Vector2Int nextPos = m.Position + repelDir; // Tính toán vị trí tiếp theo mà nam châm này sẽ tới
-                if (IsBlockedByWall(m.Position, nextPos)) return false; // Nếu hướng đi bị kẹt tường, toàn bộ khối không thể di chuyển
+                // Wall check was done in the filter, so we skip IsBlockedByWall here
                 
                 GridEntity inWay = gridManager.GetEntityAt(nextPos); // Lấy vật cản tại vị trí đích
                 // Nếu có vật cản và nó không phải là một phần của chính khối đang xét
-                if (inWay != null && !(inWay is MagnetEntity mw && blockMagnets.Contains(mw)))
+                if (inWay != null && !(inWay is MagnetEntity mw && unblockedMagnets.Contains(mw)))
                 {
                     if (inWay.Type == EntityType.Wall) return false; // Vật cản là tường, kẹt lại
                     // Nếu vật cản là người chơi, nhưng người chơi không nằm trong nhóm đang tính di chuyển, thì kẹt lại
@@ -117,8 +132,8 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
                     if (inWay.Type == EntityType.Magnet) // Nếu vật cản là một nam châm khác
                     {
                         MagnetEntity magInWay = (MagnetEntity)inWay; // Ép kiểu sang MagnetEntity
-                        // Nếu nam châm cản đường có cùng cực (đẩy nhau) và chưa nằm trong nhóm di chuyển dự kiến
-                        if (magInWay.Polarity == m.Polarity && !tentativeMoving.Contains(magInWay))
+                        // Nếu nam châm cản đường chưa nằm trong nhóm di chuyển dự kiến
+                        if (!tentativeMoving.Contains(magInWay))
                         {
                             // Kiểm tra đệ quy xem nam châm cản đường đó có thể bị đẩy tiếp không
                             if (!CanRepelledMagnetMove(magInWay, repelDir, pushingMass, tentativeMoving, visited))
@@ -130,7 +145,7 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
                 }
             }
             
-            foreach (var m in blockMagnets) // Sau khi kiểm tra vật cản trực tiếp, kiểm tra ma sát/lực đẩy từ tính ở 2 bên
+            foreach (var m in unblockedMagnets) // Sau khi kiểm tra vật cản trực tiếp, kiểm tra ma sát/lực đẩy từ tính ở 2 bên
             {
                 Vector2Int nextPos = m.Position + repelDir; // Vị trí dự tính tiếp theo
                 Vector2Int[] adj = AdjacentDirections; // 4 ô xung quanh
@@ -201,6 +216,39 @@ namespace PolarBond.Logic // Định nghĩa không gian tên chứa logic chính
                 }
                 return false; 
             }
+            
+            // LƯU Ý MỚI: Kiểm tra xem ô văng ra (bounceDest) có bị từ trường phụ trợ nào cản lại không
+            Vector2Int[] adj = AdjacentDirections;
+            foreach (var d in adj)
+            {
+                Vector2Int adjPos = bounceDest + d;
+                if (adjPos == nextPos) continue; // Bỏ qua nguồn đẩy ban đầu
+                
+                GridEntity sideEntity = null;
+                foreach (var e in gridManager.GetAllEntities())
+                {
+                    Vector2Int futurePos = tentativeMoving.Contains(e) ? e.Position + moveDir : e.Position;
+                    if (futurePos == adjPos)
+                    {
+                        sideEntity = e;
+                        break;
+                    }
+                }
+                
+                if (sideEntity != null && sideEntity is MagnetEntity sideMag && sideMag.Polarity == currMag.Polarity)
+                {
+                    // Có một nam châm cùng cực nằm sát ô văng ra! Nó sẽ tạo từ trường cản lại.
+                    // Kiểm tra xem nam châm đó có thể bị ép lùi lại không
+                    Vector2Int sideRepelDir = adjPos - bounceDest; 
+                    HashSet<GridEntity> visited = new HashSet<GridEntity>();
+                    visited.Add(currMag);
+                    if (!CanRepelledMagnetMove(sideMag, sideRepelDir, 1, tentativeMoving, visited))
+                    {
+                        return false; // Từ trường phụ trợ kẹt cứng -> Không thể văng ra -> Bị kẹt hoàn toàn!
+                    }
+                }
+            }
+
             return true;
         }
 

@@ -1330,13 +1330,23 @@ Tilemap:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8210287146163793619}
   m_Enabled: 1
-  m_Tiles: {}
+  m_Tiles:
+  - first: {x: 10, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 1
+      m_TileSpriteIndex: 2
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
   m_AnimatedTiles: {}
   m_TileAssetArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 11400000, guid: abe43cb13ea695146903239cc5692898, type: 2}
   - m_RefCount: 0
     m_Data: {fileID: 0}
   m_TileSpriteArray:
@@ -1344,35 +1354,35 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 3658012426206002150, guid: 6b500c9b9b741bd46980eb9f47131d61, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 0
+  - m_RefCount: 1
     m_Data:
-      e00: -1.8072844e+16
+      e00: 1
       e01: 0
-      e02: -1.1562741e-21
-      e03: -4.0002823
-      e10: 4.5914e-41
-      e11: 0
-      e12: 2.89e-43
-      e13: 6.99e-43
-      e20: -6.1005166e+16
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
       e21: 0
-      e22: -1.3415587e-19
-      e23: 3.3262836e-16
-      e30: 4.5914e-41
+      e22: 1
+      e23: 0
+      e30: 0
       e31: 0
-      e32: 7.03e-43
-      e33: 7e-43
+      e32: 0
+      e33: 1
   m_TileColorArray:
-  - m_RefCount: 0
-    m_Data: {r: -1.1562482e-21, g: -1.1562482e-21, b: -1.1562482e-21, a: -1.1562482e-21}
+  - m_RefCount: 1
+    m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: 0, y: -9, z: 0}
-  m_Size: {x: 11, y: 15, z: 1}
+  m_Origin: {x: -1, y: -9, z: 0}
+  m_Size: {x: 12, y: 15, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -2322,7 +2332,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2360,6 +2370,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SMagnet (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2384,7 +2398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2422,6 +2436,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SMagnet
       objectReference: {fileID: 0}
+    - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2446,11 +2464,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7512554563946430877, guid: 264bef6585a5b0d4f93cf76dc63f4588, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 7512554563946430877, guid: 264bef6585a5b0d4f93cf76dc63f4588, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7512554563946430877, guid: 264bef6585a5b0d4f93cf76dc63f4588, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2512,7 +2530,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2568,13 +2586,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: NMagnet (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 1847667836605970072, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.5
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.5
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2630,13 +2652,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: NMagnet
       objectReference: {fileID: 0}
+    - target: {fileID: 1847667836605970072, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2692,13 +2718,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: NMagnet (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 1847667836605970072, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.5
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2752,11 +2782,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.5
+      value: -3.5
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2793,6 +2823,10 @@ PrefabInstance:
     - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_Name
       value: SMagnet (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2856,6 +2890,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SMagnet (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2880,7 +2918,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2918,6 +2956,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SMagnet (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2940,13 +2982,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: NMagnet (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 1847667836605970072, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.5
+      value: -3.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3000,7 +3046,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.5
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 953503934882959371, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3042,6 +3088,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SMagnet
       objectReference: {fileID: 0}
+    - target: {fileID: 6530300087960876515, guid: 50c9b160ceb333647b098c98fa3f0258, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3064,13 +3114,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: NMagnet (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 1847667836605970072, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.5
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.5
+      value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4884889656453422774, guid: d1fdfb5c66a68e1439ba9647af5dbcc2, type: 3}
       propertyPath: m_LocalPosition.z
